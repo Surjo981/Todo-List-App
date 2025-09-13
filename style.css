@@ -1,0 +1,546 @@
+@import url("https://fonts.googleapis.com/css2?family=Baloo+Da+2:wght@400..800&family=Varela+Round&display=swap");
+/* default styleing */
+* {
+  box-sizing: border-box;
+}
+
+:root {
+  --base-bg: #19191b;
+  --object-bg: #0f0f1a;
+  --text-color: #ffffff;
+  --secondary-text: #a4a5b8;
+  --primary-color: #a8bdfd;
+  --button-color: linear-gradient(45deg, #6c3fbf 20%, #4fc3f7);
+  --link-color: #4fc3f7;
+  --abbr-color: #b57cff;
+  --sub-topic-color: #c6abec;
+  --green: #64f368ff;
+  --item: rgba(255, 255, 255, 0.05);
+  transition: ease-in-out 0.2s;
+}
+
+.darkmode {
+  --base-bg: #f0f0f0;
+  --object-bg: #f3e8ffe7;
+  --text-color: #183153;
+  --secondary-text: #232738;
+  --primary-color: #3a435d;
+  --button-color: #594adf;
+  --link-color: #1670ee;
+  --abbr-color: #7d50bd;
+  --sub-topic-color: #9368cf;
+  --green: #1bbb5e;
+  --item: rgba(99, 99, 99, 0.089);
+  transition: ease-in-out 0.2s;
+}
+
+body {
+  font-family: "Varela Round", system-ui;
+  background-color: var(--base-bg);
+  color: var(--text-color);
+  margin: 0;
+  padding: 20px;
+  line-height: 1.6;
+  min-height: 100vh;
+  transition: ease-in-out 0.1s;
+  cursor: default;
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+}
+
+::-webkit-scrollbar {
+  width: 7px;
+}
+
+::-webkit-scrollbar-track {
+  background: #d4ccf3;
+  border-radius: 5px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--button-color);
+  border-radius: 5px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #4b2990;
+}
+
+.loader-parent {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
+  width: 100%;
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 10000;
+  background-color: var(--base-bg);
+}
+
+.loader-parent h3 {
+  color: var(--abbr-color);
+  text-shadow: black 2px 2px px;
+  font-size: 30px;
+  font-family: "Baloo Da 2", sans-serif;
+  text-align: center;
+  margin-top: 20px;
+  letter-spacing: 2px;
+}
+
+.loader-parent h3::after {
+  content: "";
+  animation: dots 2s steps(5, end) infinite;
+  vertical-align: bottom;
+}
+@keyframes dots {
+  0%,
+  20% {
+    content: "";
+  }
+  40% {
+    content: ".";
+  }
+  60% {
+    content: "..";
+  }
+  80% {
+    content: "...";
+  }
+  90%,
+  100% {
+    content: "....";
+  }
+}
+
+#loader {
+  width: 100px;
+  height: 100px;
+  border: 10px solid #fcf9f9;
+  border-radius: 50%;
+  border-top-color: var(--abbr-color);
+  animation: rotate 1s infinite;
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+  background-color: transparent;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+@keyframes rotate {
+  100% {
+    rotate: 360deg;
+  }
+}
+
+#theme-switch {
+  height: 50px;
+  width: 50px;
+  padding: 0;
+  border-radius: 50%;
+  background-color: var(--object-bg);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: fixed;
+  right: 20px;
+  bottom: 20px;
+  cursor: pointer;
+  animation: transition 0.3s ease-in-out;
+  opacity: 0.4;
+}
+
+#theme-switch:hover {
+  opacity: 1;
+  transition: ease-in-out 0.3s;
+}
+#theme-switch:active {
+  opacity: 0.8;
+  transition: ease-in-out 0.1s;
+}
+
+@keyframes transition {
+  from {
+    opacity: 0;
+    transform: scale(0.5);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+#theme-switch svg {
+  fill: var(--primary-color);
+}
+
+#theme-switch svg:last-child {
+  display: none;
+}
+
+.darkmode #theme-switch svg:first-child {
+  display: none;
+}
+
+.darkmode #theme-switch svg:last-child {
+  display: block;
+}
+
+/* main styling */
+
+#create-list-btn,
+#add-task-btn,
+#back,
+#import-btn,
+#export-all-btn,
+#export-btn {
+  background: linear-gradient(45deg, #6c3fbf 20%, #4fc3f7);
+  color: white;
+  font-size: 17px;
+  border: none;
+  height: auto;
+  border-radius: 30px;
+  margin-left: 10px;
+  margin-bottom: 7px;
+  font-family: "Baloo Da 2", sans-serif;
+  cursor: pointer;
+  transition: ease-in-out 0.5s;
+}
+#create-list-btn:hover,
+#add-task-btn:hover,
+#back:hover,
+#import-btn:hover,
+#export-all-btn:hover,
+#export-btn:hover {
+  background: linear-gradient(45deg, #6c3fbf, #4fc3f7);
+  transition: ease-in-out 1s;
+}
+#create-list-btn:active,
+#add-task-btn:active,
+#back:active,
+#import-btn:active,
+#export-all-btn:active,
+#export-btn:active {
+  transform: scale(0.95);
+}
+
+#import-btn,
+#export-all-btn {
+  color: white;
+  border: none;
+  padding: 10px 15px;
+  border-radius: 50px;
+  cursor: pointer;
+  font-family: "Varela Round", sans-serif;
+  font-size: 16px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+#export-btn {
+  color: white;
+  border: none;
+  padding: 10px 12px;
+  border-radius: 50px;
+  cursor: pointer;
+  font-family: "Varela Round", sans-serif;
+  font-size: 16px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 50px;
+}
+button {
+  border: none;
+}
+
+button:active {
+  transform: scale(0.95);
+  transition: ease-in-out 0.1s;
+}
+
+input {
+  font-size: 20px;
+  font-family: "Baloo Da 2", sans-serif;
+  border-radius: 10px;
+  padding-left: 5px;
+  border: none;
+  width: 59%;
+}
+
+#back a {
+  margin: 40px 0;
+  cursor: pointer;
+  color: white;
+  text-decoration: none;
+}
+
+ul {
+  font-size: 25px;
+}
+
+a {
+  color: var(--text-color);
+  text-decoration: none;
+}
+
+#heading {
+  font-size: 40px;
+  text-align: center;
+}
+abbr {
+  color: var(--abbr-color);
+  text-decoration: none;
+}
+ul {
+  list-style: none;
+  padding: 0;
+  margin-top: 20px;
+}
+#todo-form {
+  margin-bottom: 20px;
+}
+
+li {
+  background-color: var(--object-bg);
+  margin-bottom: 10px;
+  padding: 10px;
+  border-radius: 10px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  transition: ease-in-out 0.1s;
+  gap: 10px;
+}
+
+#todo-list li {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background-color: var(--object-bg);
+  padding: 10px 15px;
+  margin-bottom: 10px;
+  border-radius: 8px;
+  color: var(--text-color);
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  font-weight: 600;
+}
+
+#top-row {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+}
+
+#todo-list li span {
+  flex-grow: 1;
+  margin-right: 15px;
+  word-break: break-word;
+}
+
+#todo-list li button {
+  width: 40px;
+  height: 40px;
+  margin-left: 7px;
+  border: none;
+  border-radius: 20%;
+  color: white;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+#todo-list li button i {
+  font-size: 20px;
+}
+
+#fullscreen-btn {
+  height: 50px;
+  width: 50px;
+  border-radius: 50%;
+  background-color: var(--object-bg);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: fixed;
+  right: 80px;
+  bottom: 20px;
+  cursor: pointer;
+  animation: transition 0.3s ease-in-out;
+  opacity: 0.4;
+}
+#fullscreen-btn:hover {
+  opacity: 0.8;
+  transition: ease-in-out 0.3s;
+}
+#fullscreen-btn:active {
+  opacity: 1;
+  transition: ease-in-out 0.1s;
+}
+#fullscreen-btn svg {
+  fill: var(--primary-color);
+}
+#list-title {
+  font-size: 20px;
+  padding: 5px;
+}
+
+span.completed {
+  text-decoration: line-through;
+  color: gray;
+}
+
+#create-list-btn {
+  font-size: 15px;
+  padding: 10px 10px;
+  font-weight: 500;
+}
+#list-name {
+  text-align: center;
+}
+#list-links li button {
+  width: 45px;
+  height: 45px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 20%;
+  font-size: 20px;
+}
+.info {
+  font-size: 15px;
+  color: var(--abbr-color);
+  font-family: "Varela Round", sans-serif;
+  text-align: center;
+  margin-top: 20px;
+  text-shadow: 0 1px 1px 5px rgba(0, 0, 0, 0.7);
+  font-weight: bold;
+  margin: auto 0;
+}
+
+.info a {
+  color: var(--link-color);
+  text-decoration: none;
+  font-weight: bold;
+}
+
+.info a:hover {
+  text-decoration: underline;
+}
+
+#btn-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin: 20px 0px 6px 0px;
+}
+#btn-container2 {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin: 10px 0px 20px 0px;
+}
+
+/*responsive */
+
+/*Mobile*/
+@media screen and (min-width: 220px) and (max-width: 600px) {
+  h1 {
+    font-size: vw(5);
+    margin-top: 15px;
+  }
+
+  h2 {
+    font-size: vw(6);
+  }
+
+  button {
+    font-size: 18px;
+    padding: 5px 10px;
+  }
+
+  input {
+    font-size: 19px;
+    margin-bottom: 10px;
+    display: inline;
+  }
+
+  #todo-list li {
+    font-size: 18px;
+  }
+
+  #list-title {
+    font-size: 17px;
+    padding: 3px;
+  }
+  .info {
+    font-size: 14px;
+    margin-top: 15px;
+  }
+}
+
+/*Tablet*/
+@media screen and (min-width: 600px) and (max-width: 1024px) {
+  img {
+    width: 80vw;
+    max-width: 300px;
+    height: auto;
+  }
+
+  h1 {
+    font-size: vw(9);
+    margin-top: 16px;
+  }
+
+  h2 {
+    font-size: vw(7);
+  }
+
+  p {
+    font-size: vw(5.5);
+  }
+
+  #todo-list li {
+    font-size: 18px;
+  }
+
+  .card {
+    width: 90vw;
+    height: auto;
+    max-width: 400px;
+    padding: 15px;
+  }
+
+  button {
+    font-size: 20px;
+    padding: 7px 13px;
+  }
+
+  input {
+    width: 300px;
+  }
+}
+
+/* desktop */
+@media screen and (min-width: 1024px) {
+  button {
+    font-size: 20px;
+    padding: 8px 13px;
+  }
+  input {
+    width: 350px;
+  }
+
+  #todo-list li {
+    font-size: 18px;
+  }
+}
