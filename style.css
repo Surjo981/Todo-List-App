@@ -382,10 +382,6 @@ li {
   opacity: 1;
   transition: ease-in-out 0.1s;
 }
-#list-title {
-  font-size: 20px;
-  padding: 5px;
-}
 
 span.completed {
   text-decoration: line-through;
@@ -415,10 +411,9 @@ span.completed {
   color: var(--abbr-color);
   font-family: "Varela Round", sans-serif;
   text-align: center;
-  margin-top: 20px;
   text-shadow: 0 1px 1px 5px rgba(0, 0, 0, 0.7);
   font-weight: bold;
-  margin: auto 0;
+  bottom: 10px;
 }
 
 .info a {
@@ -500,6 +495,12 @@ nav img {
   gap: 10px;
 }
 
+#list-form,
+#todo-form {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
 /*responsive */
 
 /*Mobile*/
@@ -528,10 +529,6 @@ nav img {
     font-size: 18px;
   }
 
-  #list-title {
-    font-size: 17px;
-    padding: 3px;
-  }
   .info {
     font-size: 14px;
     margin-top: 15px;
