@@ -2,6 +2,8 @@
 /* default styleing */
 * {
   box-sizing: border-box;
+  padding: 0;
+  margin: 0;
 }
 
 :root {
@@ -137,28 +139,23 @@ body {
   }
 }
 
-#theme-switch {
+.theme-switch {
   height: 50px;
   width: 50px;
   padding: 0;
   border-radius: 50%;
-  background-color: var(--object-bg);
   display: flex;
   justify-content: center;
   align-items: center;
-  position: fixed;
-  right: 20px;
-  bottom: 20px;
   cursor: pointer;
   animation: transition 0.3s ease-in-out;
-  opacity: 0.4;
 }
 
-#theme-switch:hover {
-  opacity: 1;
+.theme-switch:hover {
+  opacity: 0.8;
   transition: ease-in-out 0.3s;
 }
-#theme-switch:active {
+.theme-switch:active {
   opacity: 0.8;
   transition: ease-in-out 0.1s;
 }
@@ -173,20 +170,18 @@ body {
     transform: scale(1);
   }
 }
-
-#theme-switch svg {
-  fill: var(--primary-color);
+.theme-switch i {
+  font-size: 20px;
 }
-
-#theme-switch svg:last-child {
+.theme-switch i:last-child {
   display: none;
 }
 
-.darkmode #theme-switch svg:first-child {
+.darkmode .theme-switch i:first-child {
   display: none;
 }
 
-.darkmode #theme-switch svg:last-child {
+.darkmode .theme-switch i:last-child {
   display: block;
 }
 
@@ -267,13 +262,19 @@ button:active {
   transition: ease-in-out 0.1s;
 }
 
+#heading,
+#list-name {
+  margin-top: 5rem;
+}
+
 input {
   font-size: 20px;
   font-family: "Baloo Da 2", sans-serif;
-  border-radius: 10px;
+  border-radius: 3rem;
   padding-left: 5px;
   border: none;
   width: 59%;
+  padding: 5px 0px 5px 7px;
 }
 
 #back a {
@@ -293,8 +294,9 @@ a {
 }
 
 #heading {
-  font-size: 40px;
+  font-size: 30px;
   text-align: center;
+  color: var(--link-color);
 }
 abbr {
   color: var(--abbr-color);
@@ -366,17 +368,11 @@ li {
 #fullscreen-btn {
   height: 50px;
   width: 50px;
-  border-radius: 50%;
-  background-color: var(--object-bg);
   display: flex;
   justify-content: center;
   align-items: center;
-  position: fixed;
-  right: 80px;
-  bottom: 20px;
   cursor: pointer;
   animation: transition 0.3s ease-in-out;
-  opacity: 0.4;
 }
 #fullscreen-btn:hover {
   opacity: 0.8;
@@ -385,9 +381,6 @@ li {
 #fullscreen-btn:active {
   opacity: 1;
   transition: ease-in-out 0.1s;
-}
-#fullscreen-btn svg {
-  fill: var(--primary-color);
 }
 #list-title {
   font-size: 20px;
@@ -406,6 +399,7 @@ span.completed {
 }
 #list-name {
   text-align: center;
+  margin-bottom: 1rem;
 }
 #list-links li button {
   width: 45px;
@@ -450,6 +444,62 @@ span.completed {
   margin: 10px 0px 20px 0px;
 }
 
+.nav-box {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+header {
+  width: 100vw;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+nav {
+  width: 97%;
+  max-width: 1000px;
+  background: rgba(255, 255, 255, 0.03);
+  backdrop-filter: blur(15px);
+  position: fixed;
+  top: 0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  z-index: 10000 !important;
+  padding: 10px 20px;
+  border: 1px solid gray;
+  border-radius: 5rem;
+  margin-top: 10px;
+}
+
+nav h2 {
+  font-size: 30px;
+}
+
+nav img {
+  width: 40px;
+  height: 40px;
+}
+.nav-box i {
+  font-size: 25px;
+}
+#heading {
+  margin-bottom: 20px;
+}
+
+.icon {
+  width: auto;
+  height: 27px;
+}
+
+.logo-box {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+}
+
 /*responsive */
 
 /*Mobile*/
@@ -469,9 +519,9 @@ span.completed {
   }
 
   input {
-    font-size: 19px;
+    font-size: 18px;
     margin-bottom: 10px;
-    display: inline;
+    padding: 4px 0px 4px 7px;
   }
 
   #todo-list li {
@@ -485,6 +535,18 @@ span.completed {
   .info {
     font-size: 14px;
     margin-top: 15px;
+  }
+  nav h2 {
+    font-size: 20px;
+  }
+
+  nav img {
+    width: 35px;
+    height: 35px;
+  }
+
+  .nav-box i {
+    font-size: 18px;
   }
 }
 
