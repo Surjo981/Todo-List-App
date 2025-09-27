@@ -160,7 +160,7 @@ function handleEdit(taskObj, item) {
 }
 
 function handleDelete(taskObj, item) {
-  if (confirm('Delete this task?')) {
+  if (confirm('Are you sure you want to delete this task?')) {
     todoList.removeChild(item);
     currentList = currentList.filter(t => t !== taskObj);
     saveList();
@@ -381,7 +381,9 @@ function updateProgress() {
     progressDisplay.style.borderRadius = "8px";
     progressDisplay.style.backgroundColor = "var(--item)";
     progressDisplay.style.boxShadow = "0 4px 12px rgba(0, 0, 0, 0.1)";
-    
+    progressDisplay.style.width = "90%";
+    progressDisplay.style.maxWidth = "400px";
+
     const todoContainer = todoList.parentNode;
     todoContainer.insertBefore(progressDisplay, todoList);
   }
@@ -401,7 +403,7 @@ function updateProgress() {
   const percentage = Math.round((completedTasks / totalTasks) * 100);
   
   const progressHTML = `
-    <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 10px;">
+    <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 10px; ">
       <div style="flex: 1; background: rgba(255,255,255,0.1); border-radius: 10px; height: 10px; overflow: hidden; min-width: 100px;">
         <div style="width: ${percentage}%; height: 100%; background: linear-gradient(90deg, #41b945ff, #64f368ff); transition: width 0.3s ease; border-radius: 10px;"></div>
       </div>
@@ -711,35 +713,9 @@ function createImportExportButtons() {
   exportCurrentBtn.style.fontWeight = 'bold';
   exportCurrentBtn.onclick = exportCurrentList;
   
-  const exportAllBtn = document.createElement('button');
-  exportAllBtn.id = 'export-all-btn';
-  exportAllBtn.innerHTML = '📦 Export All Lists';
-  exportAllBtn.style.backgroundColor = '#e74c3c';
-  exportAllBtn.style.color = 'white';
-  exportAllBtn.style.border = 'none';
-  exportAllBtn.style.padding = '10px 16px';
-  exportAllBtn.style.borderRadius = '6px';
-  exportAllBtn.style.cursor = 'pointer';
-  exportAllBtn.style.fontSize = '13px';
-  exportAllBtn.style.fontWeight = 'bold';
-  exportAllBtn.onclick = exportAllLists;
-  
-  const importBtn = document.createElement('button');
-  importBtn.id = 'import-btn';
-  importBtn.innerHTML = '📥 Import List';
-  importBtn.style.backgroundColor = '#27ae60';
-  importBtn.style.color = 'white';
-  importBtn.style.border = 'none';
-  importBtn.style.padding = '10px 16px';
-  importBtn.style.borderRadius = '6px';
-  importBtn.style.cursor = 'pointer';
-  importBtn.style.fontSize = '13px';
-  importBtn.style.fontWeight = 'bold';
-  importBtn.onclick = importList;
   
   buttonContainer.appendChild(exportCurrentBtn);
-  buttonContainer.appendChild(exportAllBtn);
-  buttonContainer.appendChild(importBtn);
+
   
   const progressDisplay = document.getElementById('progress-display');
   if (progressDisplay && progressDisplay.parentNode) {
@@ -773,9 +749,9 @@ setInterval(() => {
     
     if (timestampDiv && task) {
       if (task.completed && task.completedAt) {
-        timestampDiv.innerHTML = `✅ ${formatTimestamp(task.completedAt)}`;
+        timestampDiv.innerHTML = `<i class="fa-solid fa-check"></i> ${formatTimestamp(task.completedAt)}`;
       } else {
-        timestampDiv.innerHTML = `📝 ${formatTimestamp(task.createdAt)}`;
+        timestampDiv.innerHTML = `<i class="fa-solid fa-calendar-days"></i> ${formatTimestamp(task.createdAt)}`;
       }
     }
   });
@@ -806,51 +782,51 @@ document.addEventListener('touchmove', function(e) {
   }
 }, { passive: false });
 
-// Add visual feedback for mobile users on first load
-if (isMobileDevice()) {
-  setTimeout(() => {
-    const items = document.querySelectorAll('#todo-list li');
-    if (items.length > 0 && currentList.length > 0) {
-      const firstItem = items[0];
-      const hint = document.createElement('div');
-      hint.innerHTML = '👆 Try swiping this task left or right!';
-      hint.style.position = 'fixed';
-      hint.style.bottom = '20px';
-      hint.style.left = '50%';
-      hint.style.transform = 'translateX(-50%)';
-      hint.style.backgroundColor = '#3498db';
-      hint.style.color = 'white';
-      hint.style.padding = '10px 15px';
-      hint.style.borderRadius = '20px';
-      hint.style.fontSize = '12px';
-      hint.style.fontWeight = 'bold';
-      hint.style.zIndex = '1000';
-      hint.style.boxShadow = '0 4px 12px rgba(0,0,0,0.3)';
-      hint.style.animation = 'pulse 2s infinite';
+// // Add visual feedback for mobile users on first load
+// if (isMobileDevice()) {
+//   setTimeout(() => {
+//     const items = document.querySelectorAll('#todo-list li');
+//     if (items.length > 0 && currentList.length > 0) {
+//       const firstItem = items[0];
+//       const hint = document.createElement('div');
+//       hint.innerHTML = '👆 Try swiping this task left or right!';
+//       hint.style.position = 'fixed';
+//       hint.style.bottom = '20px';
+//       hint.style.left = '50%';
+//       hint.style.transform = 'translateX(-50%)';
+//       hint.style.backgroundColor = '#3498db';
+//       hint.style.color = 'white';
+//       hint.style.padding = '10px 15px';
+//       hint.style.borderRadius = '20px';
+//       hint.style.fontSize = '12px';
+//       hint.style.fontWeight = 'bold';
+//       hint.style.zIndex = '1000';
+//       hint.style.boxShadow = '0 4px 12px rgba(0,0,0,0.3)';
+//       hint.style.animation = 'pulse 2s infinite';
       
-      document.body.appendChild(hint);
+//       document.body.appendChild(hint);
       
-      // Remove hint after 5 seconds or on first swipe
-      const removeHint = () => {
-        if (document.body.contains(hint)) {
-          hint.style.opacity = '0';
-          setTimeout(() => {
-            if (document.body.contains(hint)) {
-              document.body.removeChild(hint);
-            }
-          }, 300);
-        }
-      };
+//       // Remove hint after 5 seconds or on first swipe
+//       const removeHint = () => {
+//         if (document.body.contains(hint)) {
+//           hint.style.opacity = '0';
+//           setTimeout(() => {
+//             if (document.body.contains(hint)) {
+//               document.body.removeChild(hint);
+//             }
+//           }, 300);
+//         }
+//       };
       
-      setTimeout(removeHint, 5000);
+//       setTimeout(removeHint, 5000);
       
-      // Listen for first swipe
-      const handleFirstSwipe = () => {
-        removeHint();
-        document.removeEventListener('touchstart', handleFirstSwipe);
-      };
+//       // Listen for first swipe
+//       const handleFirstSwipe = () => {
+//         removeHint();
+//         document.removeEventListener('touchstart', handleFirstSwipe);
+//       };
       
-      document.addEventListener('touchstart', handleFirstSwipe);
-    }
-  }, 2000);
-}
+//       document.addEventListener('touchstart', handleFirstSwipe);
+//     }
+//   }, 2000);
+// }
