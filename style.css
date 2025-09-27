@@ -452,7 +452,7 @@ header {
   justify-content: center;
 }
 nav {
-  width: 97%;
+  width: 90%;
   max-width: 1000px;
   background: rgba(255, 255, 255, 0.03);
   backdrop-filter: blur(15px);

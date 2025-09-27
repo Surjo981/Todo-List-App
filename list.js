@@ -12,6 +12,22 @@ document.title = `${listName} - Ultra To-Do List`;
 let lists = JSON.parse(localStorage.getItem('lists')) || {};
 let currentList = lists[listName] || [];
 
+// Touch/swipe detection variables
+let touchStartX = 0;
+let touchStartY = 0;
+let touchEndX = 0;
+let touchEndY = 0;
+let isSwiping = false;
+let currentSwipedItem = null;
+
+// Detect if device is mobile/tablet
+function isMobileDevice() {
+  return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || 
+         ('ontouchstart' in window) || 
+         (navigator.maxTouchPoints > 0) ||
+         window.innerWidth <= 768;
+}
+
 todoForm.addEventListener('submit', function(e) {
   e.preventDefault();
   const taskText = todoInput.value.trim();
@@ -51,6 +67,145 @@ function formatTimestamp(isoString) {
   });
 }
 
+function handleSwipeStart(e, item, taskObj) {
+  if (!isMobileDevice()) return;
+  
+  const touch = e.touches[0];
+  touchStartX = touch.clientX;
+  touchStartY = touch.clientY;
+  isSwiping = false;
+  currentSwipedItem = item;
+  
+  // Reset any existing transforms
+  item.style.transform = 'translateX(0px)';
+  item.style.transition = 'none';
+}
+
+function handleSwipeMove(e, item, taskObj) {
+  if (!isMobileDevice() || currentSwipedItem !== item) return;
+  
+  const touch = e.touches[0];
+  touchEndX = touch.clientX;
+  touchEndY = touch.clientY;
+  
+  const deltaX = touchEndX - touchStartX;
+  const deltaY = touchEndY - touchStartY;
+  
+  // Check if this is a horizontal swipe (not vertical scroll)
+  if (Math.abs(deltaX) > Math.abs(deltaY) && Math.abs(deltaX) > 10) {
+    isSwiping = true;
+    e.preventDefault(); // Prevent scrolling
+    
+    // Limit swipe distance
+    const maxSwipe = 120;
+    const limitedDelta = Math.max(-maxSwipe, Math.min(maxSwipe, deltaX));
+    
+    item.style.transform = `translateX(${limitedDelta}px)`;
+    
+    // Visual feedback for swipe direction
+    if (limitedDelta > 30) {
+      // Edit swipe (left to right)
+      item.style.backgroundColor = 'rgba(240, 170, 58, 0.3)';
+    } else if (limitedDelta < -30) {
+      // Delete swipe (right to left)
+      item.style.backgroundColor = 'rgba(192, 57, 43, 0.3)';
+    } else {
+      item.style.backgroundColor = 'var(--item)';
+    }
+  }
+}
+
+function handleSwipeEnd(e, item, taskObj) {
+  if (!isMobileDevice() || currentSwipedItem !== item || !isSwiping) {
+    return;
+  }
+  
+  const deltaX = touchEndX - touchStartX;
+  const deltaY = touchEndY - touchStartY;
+  
+  // Only process if it's a horizontal swipe
+  if (Math.abs(deltaX) > Math.abs(deltaY)) {
+    const minSwipeDistance = 60;
+    
+    if (deltaX > minSwipeDistance) {
+      // Left to right swipe - EDIT
+      handleEdit(taskObj, item);
+    } else if (deltaX < -minSwipeDistance) {
+      // Right to left swipe - DELETE
+      handleDelete(taskObj, item);
+    }
+  }
+  
+  // Reset item position and style
+  item.style.transition = 'all 0.3s ease';
+  item.style.transform = 'translateX(0px)';
+  item.style.backgroundColor = 'var(--item)';
+  
+  // Clear swipe state
+  isSwiping = false;
+  currentSwipedItem = null;
+}
+
+function handleEdit(taskObj, item) {
+  const span = item.querySelector('span');
+  const newText = prompt("Edit your task:", span.textContent);
+  if (newText !== null && newText.trim() !== "") {
+    span.textContent = newText.trim();
+    taskObj.text = newText.trim();
+    saveList();
+    
+    // Show feedback
+    showSwipeFeedback(item, '✏️ Edited', '#f0aa3aff');
+  }
+}
+
+function handleDelete(taskObj, item) {
+  if (confirm('Delete this task?')) {
+    todoList.removeChild(item);
+    currentList = currentList.filter(t => t !== taskObj);
+    saveList();
+    updateProgress();
+    
+    // Show feedback before removal
+    showSwipeFeedback(item, '🗑️ Deleted', '#c0392b');
+  }
+}
+
+function showSwipeFeedback(item, message, color) {
+  const feedback = document.createElement('div');
+  feedback.textContent = message;
+  feedback.style.position = 'fixed';
+  feedback.style.top = '50%';
+  feedback.style.left = '50%';
+  feedback.style.transform = 'translate(-50%, -50%)';
+  feedback.style.backgroundColor = color;
+  feedback.style.color = 'white';
+  feedback.style.padding = '10px 20px';
+  feedback.style.borderRadius = '20px';
+  feedback.style.fontSize = '14px';
+  feedback.style.fontWeight = 'bold';
+  feedback.style.zIndex = '10000';
+  feedback.style.opacity = '0';
+  feedback.style.transition = 'opacity 0.3s ease';
+  
+  document.body.appendChild(feedback);
+  
+  // Animate in
+  setTimeout(() => {
+    feedback.style.opacity = '1';
+  }, 10);
+  
+  // Remove after 1.5 seconds
+  setTimeout(() => {
+    feedback.style.opacity = '0';
+    setTimeout(() => {
+      if (document.body.contains(feedback)) {
+        document.body.removeChild(feedback);
+      }
+    }, 300);
+  }, 1500);
+}
+
 function addTaskToDOM(taskObj) {
   const item = document.createElement('li');
   item.style.display = 'flex';
@@ -59,23 +214,50 @@ function addTaskToDOM(taskObj) {
   item.style.padding = '12px';
   item.style.borderRadius = '8px';
   item.style.backgroundColor = 'var(--item)';
+  item.style.transition = 'all 0.3s ease';
+  item.style.position = 'relative';
+  item.style.overflow = 'hidden';
 
-  // Top row: complete-btn, task-name, edit-btn, delete-btn (ALL LEFT ALIGNED)
+  // Add swipe hint for mobile
+  if (isMobileDevice()) {
+    item.style.cursor = 'grab';
+    
+    // Add subtle visual hint
+    const swipeHint = document.createElement('div');
+    swipeHint.innerHTML = '← Swipe to edit • Swipe to delete →';
+    swipeHint.style.position = 'absolute';
+    swipeHint.style.top = '50%';
+    swipeHint.style.left = '50%';
+    swipeHint.style.transform = 'translate(-50%, -50%)';
+    swipeHint.style.fontSize = '11px';
+    swipeHint.style.color = '#888';
+    swipeHint.style.opacity = '0';
+    swipeHint.style.pointerEvents = 'none';
+    swipeHint.style.transition = 'opacity 0.3s ease';
+    swipeHint.style.textAlign = 'center';
+    swipeHint.style.whiteSpace = 'nowrap';
+    item.appendChild(swipeHint);
+  }
+
+  // Top row: complete-btn, task-name, and edit/delete buttons for desktop
   const topRow = document.createElement('div');
   topRow.style.display = 'flex';
   topRow.style.alignItems = 'flex-start';
   topRow.style.gap = '8px';
   topRow.style.width = '100%';
+  topRow.style.position = 'relative';
+  topRow.style.zIndex = '1';
 
   const span = document.createElement('span');
   span.textContent = taskObj.text;
   span.classList.toggle('completed', taskObj.completed);
   span.style.wordBreak = 'break-word';
   span.style.lineHeight = '1.4';
-  span.style.paddingTop = '6px'; // Align with button center
+  span.style.paddingTop = '6px';
   span.style.paddingRight = '8px';
+  span.style.flex = '1';
 
-  // Timestamp display (bottom row - RIGHT ALIGNED)
+  // Timestamp display
   const timestampDiv = document.createElement('div');
   timestampDiv.style.fontSize = '0.75em';
   timestampDiv.style.color = '#888';
@@ -91,24 +273,17 @@ function addTaskToDOM(taskObj) {
     timestampDiv.innerHTML = `<i class="fa-solid fa-calendar-days"></i> ${formatTimestamp(taskObj.createdAt)}`;
   }
 
-  
-  if (taskObj.completed && taskObj.completedAt) {
-    timestampDiv.innerHTML = `<i class="fa-solid fa-check"></i> ${formatTimestamp(taskObj.completedAt)}`;
-    timestampDiv.style.color = 'var(--green)';
-  } else {
-    timestampDiv.innerHTML = `<i class="fa-solid fa-calendar-days"></i> ${formatTimestamp(taskObj.createdAt)}`;
-  }
-
   const completeBtn = document.createElement('button');
   completeBtn.innerHTML = '<i class="fa-solid fa-check"></i>';
   completeBtn.style.backgroundColor = 'var(--green)';
   completeBtn.style.borderRadius = '6px';
   completeBtn.style.border = 'none';
   completeBtn.style.flexShrink = '0';
+  completeBtn.style.padding = '8px';
+  completeBtn.style.cursor = 'pointer';
   completeBtn.onclick = function() {
     taskObj.completed = !taskObj.completed;
     
-    // Update timestamp
     if (taskObj.completed) {
       taskObj.completedAt = new Date().toISOString();
       timestampDiv.innerHTML = `<i class="fa-solid fa-check"></i> ${formatTimestamp(taskObj.completedAt)}`;
@@ -122,46 +297,55 @@ function addTaskToDOM(taskObj) {
     span.classList.toggle('completed', taskObj.completed);
     saveList();
     
-    // FIXED: Force immediate progress update
     setTimeout(() => {
       updateProgress();
       checkIfAllCompleted();
-    }, 50); // Small delay to ensure DOM updates
+    }, 50);
   };
 
-  const editBtn = document.createElement("button");
-  editBtn.innerHTML = '<i class="fa-solid fa-pen-to-square"></i>';
-  editBtn.style.backgroundColor = '#f0aa3aff';
-  editBtn.style.borderRadius = '6px';
-  editBtn.style.border = 'none';
-  editBtn.style.flexShrink = '0';
-  editBtn.onclick = function() {
-    const newText = prompt("Edit your task:", span.textContent);
-    if (newText !== null && newText.trim() !== "") {
-      span.textContent = newText.trim();
-      taskObj.text = newText.trim();
-      saveList();
-    }
-  };
+  // Add edit and delete buttons only for desktop
+  if (!isMobileDevice()) {
+    const editBtn = document.createElement("button");
+    editBtn.innerHTML = '<i class="fa-solid fa-pen-to-square"></i>';
+    editBtn.style.backgroundColor = '#f0aa3aff';
+    editBtn.style.borderRadius = '6px';
+    editBtn.style.border = 'none';
+    editBtn.style.flexShrink = '0';
+    editBtn.style.padding = '8px';
+    editBtn.style.cursor = 'pointer';
+    editBtn.onclick = function() {
+      handleEdit(taskObj, item);
+    };
 
-  const deleteBtn = document.createElement('button');
-  deleteBtn.innerHTML = '<i class="fa-solid fa-trash"></i>';
-  deleteBtn.style.backgroundColor = '#c0392b';
-  deleteBtn.style.borderRadius = '6px';
-  deleteBtn.style.border = 'none';
-  deleteBtn.style.flexShrink = '0';
-  deleteBtn.onclick = function() {
-    todoList.removeChild(item);
-    currentList = currentList.filter(t => t !== taskObj);
-    saveList();
-    updateProgress();
-  };
+    const deleteBtn = document.createElement('button');
+    deleteBtn.innerHTML = '<i class="fa-solid fa-trash"></i>';
+    deleteBtn.style.backgroundColor = '#c0392b';
+    deleteBtn.style.borderRadius = '6px';
+    deleteBtn.style.border = 'none';
+    deleteBtn.style.flexShrink = '0';
+    deleteBtn.style.padding = '8px';
+    deleteBtn.style.cursor = 'pointer';
+    deleteBtn.onclick = function() {
+      handleDelete(taskObj, item);
+    };
 
-  // Assemble the top row: complete-btn, task-name, edit-btn, delete-btn (LEFT ALIGNED)
-  topRow.appendChild(completeBtn);
-  topRow.appendChild(span);
-  topRow.appendChild(editBtn);
-  topRow.appendChild(deleteBtn);
+    topRow.appendChild(completeBtn);
+    topRow.appendChild(span);
+    topRow.appendChild(editBtn);
+    topRow.appendChild(deleteBtn);
+  } else {
+    // Mobile layout - only complete button and text
+    topRow.appendChild(completeBtn);
+    topRow.appendChild(span);
+    
+    // Add touch event listeners for mobile
+    item.addEventListener('touchstart', (e) => handleSwipeStart(e, item, taskObj), { passive: false });
+    item.addEventListener('touchmove', (e) => handleSwipeMove(e, item, taskObj), { passive: false });
+    item.addEventListener('touchend', (e) => handleSwipeEnd(e, item, taskObj), { passive: false });
+    
+    // Prevent context menu on mobile
+    item.addEventListener('contextmenu', (e) => e.preventDefault());
+  }
 
   // Assemble the entire item
   item.appendChild(topRow);
@@ -189,7 +373,6 @@ if (Notification.permission !== 'granted') {
 function updateProgress() {
   let progressDisplay = document.getElementById("progress-display");
   
-  // Create progress display if it doesn't exist
   if (!progressDisplay) {
     progressDisplay = document.createElement("div");
     progressDisplay.id = "progress-display";
@@ -199,7 +382,6 @@ function updateProgress() {
     progressDisplay.style.backgroundColor = "var(--item)";
     progressDisplay.style.boxShadow = "0 4px 12px rgba(0, 0, 0, 0.1)";
     
-    // Insert before todo list
     const todoContainer = todoList.parentNode;
     todoContainer.insertBefore(progressDisplay, todoList);
   }
@@ -211,15 +393,13 @@ function updateProgress() {
     progressDisplay.innerHTML = `<div style="text-align: center; color: #888;">
     <img src="https://ultratodolist.pages.dev/no-task.svg" alt="No tasks" style="max-width: 300px; height: auto;" />
     <h4 style="margin: 0px; padding: 0px;"> No tasks yet.</h4>
-    <small>Add tasks to get started</small>
+    <small>Add tasks to get started${isMobileDevice() ? '<br>📱 Swipe tasks left/right to edit/delete' : ''}</small>
     </div>`;
-
     return;
   }
 
   const percentage = Math.round((completedTasks / totalTasks) * 100);
   
-  // Create progress bar
   const progressHTML = `
     <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 10px;">
       <div style="flex: 1; background: rgba(255,255,255,0.1); border-radius: 10px; height: 10px; overflow: hidden; min-width: 100px;">
@@ -229,6 +409,7 @@ function updateProgress() {
     </div>
     <div style="text-align: center; font-size: 0.85em;">
       ${completedTasks} of ${totalTasks} tasks completed
+      ${isMobileDevice() ? '<br><small style="color: #888; font-size: 0.75em;">💡 Swipe ← to edit • Swipe → to delete</small>' : ''}
       ${completedTasks > 0 && completedTasks < totalTasks ? `<br><small style="color: #888; font-size: 0.8em;">Keep it up! 💪</small>` : ''}
       ${completedTasks === totalTasks ? `<br><small style="color: var(--green); font-size: 0.8em;">All done! 🎉</small>` : ''}
     </div>
@@ -236,7 +417,6 @@ function updateProgress() {
   
   progressDisplay.innerHTML = progressHTML;
 
-  // Color feedback
   if (completedTasks === totalTasks && totalTasks > 0) {
     progressDisplay.style.color = "var(--green)";
   } else {
@@ -263,7 +443,6 @@ function exportCurrentList() {
   const dataBlob = new Blob([dataStr], { type: 'application/json' });
   const fileName = `${listName.replace(/[^a-z0-9]/gi, '_').toLowerCase()}_${new Date().toISOString().split('T')[0]}.json`;
   
-  // Create download link
   const link = document.createElement('a');
   link.href = URL.createObjectURL(dataBlob);
   link.download = fileName;
@@ -271,10 +450,8 @@ function exportCurrentList() {
   link.click();
   document.body.removeChild(link);
   
-  // Show share popup with actual file
   showSharePopup('single', fileName, dataBlob);
   
-  // Show notification
   if (Notification.permission === 'granted') {
     new Notification('📤 List Exported', { 
       body: `${listName} exported successfully!` 
@@ -290,7 +467,6 @@ function exportAllLists() {
     return;
   }
   
-  // Calculate statistics
   let totalTasks = 0;
   let totalCompleted = 0;
   const listStats = {};
@@ -320,7 +496,6 @@ function exportAllLists() {
   const dataBlob = new Blob([dataStr], { type: 'application/json' });
   const fileName = `all_todo_lists_${new Date().toISOString().split('T')[0]}.json`;
   
-  // Create download link
   const link = document.createElement('a');
   link.href = URL.createObjectURL(dataBlob);
   link.download = fileName;
@@ -328,14 +503,11 @@ function exportAllLists() {
   link.click();
   document.body.removeChild(link);
   
-  // Show share popup with actual file
   showSharePopup('all', fileName, dataBlob);
   
-  // Show success message
   const message = `📤 All Lists Exported!\n\n• ${Object.keys(allLists).length} lists\n• ${totalTasks} total tasks\n• ${totalCompleted} completed tasks`;
   alert(message);
   
-  // Show notification
   if (Notification.permission === 'granted') {
     new Notification('📤 All Lists Exported', { 
       body: `${Object.keys(allLists).length} lists with ${totalTasks} tasks exported!` 
@@ -343,9 +515,7 @@ function exportAllLists() {
   }
 }
 
-// Enhanced share popup with actual file sharing
 function showSharePopup(exportType, fileName, fileBlob) {
-  // Create overlay
   const overlay = document.createElement('div');
   overlay.style.position = 'fixed';
   overlay.style.top = '0';
@@ -358,7 +528,6 @@ function showSharePopup(exportType, fileName, fileBlob) {
   overlay.style.alignItems = 'center';
   overlay.style.justifyContent = 'center';
   
-  // Create popup
   const popup = document.createElement('div');
   popup.style.backgroundColor = '#2c3e50';
   popup.style.borderRadius = '12px';
@@ -369,13 +538,11 @@ function showSharePopup(exportType, fileName, fileBlob) {
   popup.style.textAlign = 'center';
   popup.style.boxShadow = '0 10px 30px rgba(0,0,0,0.5)';
   
-  // Title
   const title = document.createElement('h3');
   title.textContent = '📤 Your todo list file has been saved!';
   title.style.margin = '0 0 20px 0';
   title.style.color = '#ecf0f1';
   
-  // Description
   const desc = document.createElement('p');
   desc.innerHTML = exportType === 'all' 
     ? `Your complete todo lists have been saved as <strong>${fileName}</strong>. Share this file directly!` 
@@ -384,32 +551,21 @@ function showSharePopup(exportType, fileName, fileBlob) {
   desc.style.color = '#bdc3c7';
   desc.style.lineHeight = '1.4';
   
-  // Share buttons container
   const shareContainer = document.createElement('div');
   shareContainer.style.display = 'grid';
   shareContainer.style.gridTemplateColumns = 'repeat(auto-fit, minmax(100px, 1fr))';
   shareContainer.style.gap = '12px';
   shareContainer.style.marginBottom = '20px';
   
-  // Check if Web Share API is supported
-  const canShareFiles = navigator.share && navigator.canShare && navigator.canShare({ files: [new File([''], 'test')] });
-  
-  // Share options
-  const shareOptions = [
-    
-    {
-      name: 'Download Again',
-      icon: '💾',
-      color: '#34acdbff',
-      width: '120px',
-      action: () => downloadFileAgain(fileName, fileBlob)
-
-    }
-  ];
+  const shareOptions = [{
+    name: 'Download Again',
+    icon: '💾',
+    color: '#34acdbff',
+    width: '120px',
+    action: () => downloadFileAgain(fileName, fileBlob)
+  }];
   
   shareOptions.forEach(option => {
-    if (option.show === false) return; // Skip if not supported
-    
     const btn = document.createElement('button');
     btn.innerHTML = `${option.icon}<br><span style="font-size: 11px;">${option.name}</span>`;
     btn.style.backgroundColor = option.color;
@@ -428,7 +584,6 @@ function showSharePopup(exportType, fileName, fileBlob) {
     shareContainer.appendChild(btn);
   });
   
-  // Instructions
   const instructions = document.createElement('p');
   instructions.innerHTML = '💡 <strong>Tip:</strong> The file has been downloaded to your device. You can share it from your Downloads folder.';
   instructions.style.fontSize = '12px';
@@ -436,7 +591,6 @@ function showSharePopup(exportType, fileName, fileBlob) {
   instructions.style.margin = '15px 0';
   instructions.style.lineHeight = '1.3';
   
-  // Close button
   const closeBtn = document.createElement('button');
   closeBtn.textContent = 'Close';
   closeBtn.style.backgroundColor = '#e74c3c';
@@ -456,7 +610,6 @@ function showSharePopup(exportType, fileName, fileBlob) {
   popup.appendChild(closeBtn);
   overlay.appendChild(popup);
   
-  // Close on overlay click
   overlay.onclick = function(e) {
     if (e.target === overlay) {
       document.body.removeChild(overlay);
@@ -466,8 +619,6 @@ function showSharePopup(exportType, fileName, fileBlob) {
   document.body.appendChild(overlay);
 }
 
-
-// Download file again
 function downloadFileAgain(fileName, fileBlob) {
   const link = document.createElement('a');
   link.href = URL.createObjectURL(fileBlob);
@@ -477,7 +628,6 @@ function downloadFileAgain(fileName, fileBlob) {
   document.body.removeChild(link);
   alert(`💾 File "${fileName}" downloaded again!`);
 }
-
 
 function importList() {
   const input = document.createElement('input');
@@ -494,17 +644,14 @@ function importList() {
       try {
         const importedData = JSON.parse(e.target.result);
         
-        // Validate imported data
         if (!importedData.tasks || !Array.isArray(importedData.tasks)) {
           alert('Invalid file format. Please select a valid todo list export file.');
           return;
         }
         
-        // Confirm import
         const confirmMessage = `Import "${importedData.listName || 'Unknown'}" list?\n\nThis will replace current list with:\n- ${importedData.totalTasks || importedData.tasks.length} tasks\n- ${importedData.completedTasks || importedData.tasks.filter(t => t.completed).length} completed tasks\n\nCurrent list will be lost!`;
         
         if (confirm(confirmMessage)) {
-          // Process imported tasks
           const processedTasks = importedData.tasks.map(task => ({
             text: task.text || 'Imported Task',
             completed: task.completed || false,
@@ -512,16 +659,13 @@ function importList() {
             completedAt: task.completedAt || null
           }));
           
-          // Replace current list
           currentList = processedTasks;
           saveList();
           
-          // Clear and reload DOM
           todoList.innerHTML = '';
           currentList.forEach(addTaskToDOM);
           updateProgress();
           
-          // Show success notification
           if (Notification.permission === 'granted') {
             new Notification('📥 List Imported', { 
               body: `${importedData.listName || 'List'} imported successfully!` 
@@ -544,9 +688,7 @@ function importList() {
   document.body.removeChild(input);
 }
 
-// Create Import/Export buttons
 function createImportExportButtons() {
-  // Check if buttons already exist
   if (document.getElementById('export-btn')) return;
   
   const buttonContainer = document.createElement('div');
@@ -556,7 +698,6 @@ function createImportExportButtons() {
   buttonContainer.style.justifyContent = 'center';
   buttonContainer.style.flexWrap = 'wrap';
   
-  // Export Current List button
   const exportCurrentBtn = document.createElement('button');
   exportCurrentBtn.id = 'export-btn';
   exportCurrentBtn.innerHTML = '📤 Export This List';
@@ -570,7 +711,6 @@ function createImportExportButtons() {
   exportCurrentBtn.style.fontWeight = 'bold';
   exportCurrentBtn.onclick = exportCurrentList;
   
-  // Export All Lists button
   const exportAllBtn = document.createElement('button');
   exportAllBtn.id = 'export-all-btn';
   exportAllBtn.innerHTML = '📦 Export All Lists';
@@ -584,7 +724,6 @@ function createImportExportButtons() {
   exportAllBtn.style.fontWeight = 'bold';
   exportAllBtn.onclick = exportAllLists;
   
-  // Import button
   const importBtn = document.createElement('button');
   importBtn.id = 'import-btn';
   importBtn.innerHTML = '📥 Import List';
@@ -602,18 +741,15 @@ function createImportExportButtons() {
   buttonContainer.appendChild(exportAllBtn);
   buttonContainer.appendChild(importBtn);
   
-  // Insert after progress display
   const progressDisplay = document.getElementById('progress-display');
   if (progressDisplay && progressDisplay.parentNode) {
     progressDisplay.parentNode.insertBefore(buttonContainer, progressDisplay.nextSibling);
   } else {
-    // Fallback: insert before todo list
     const todoContainer = todoList.parentNode;
     todoContainer.insertBefore(buttonContainer, todoList);
   }
 }
 
-// Initialize import/export buttons
 createImportExportButtons();
 
 // Fullscreen functionality
@@ -645,20 +781,76 @@ setInterval(() => {
   });
 }, 60000); // Update every minute
 
-
-//loader
-  window.addEventListener("load", function () {
+// Loader functionality
+window.addEventListener("load", function () {
   document.getElementById("loader").style.display = "none";
   document.getElementById("main-content").style.display = "block";
 });
+
 window.addEventListener("beforeunload", function () {
   document.getElementById("loader").style.display = "block";
   document.getElementById("main-content").style.display = "none";
 });
+
 window.addEventListener("load", function () {
   const loaderParent = document.querySelector(".loader-parent");
   const content = document.getElementById("main-content");
-  loaderParent.style.display = "none";
-  content.style.display = "block";
+  if (loaderParent) loaderParent.style.display = "none";
+  if (content) content.style.display = "block";
 });
 
+// Prevent accidental page refresh when swiping
+document.addEventListener('touchmove', function(e) {
+  if (isSwiping) {
+    e.preventDefault();
+  }
+}, { passive: false });
+
+// Add visual feedback for mobile users on first load
+if (isMobileDevice()) {
+  setTimeout(() => {
+    const items = document.querySelectorAll('#todo-list li');
+    if (items.length > 0 && currentList.length > 0) {
+      const firstItem = items[0];
+      const hint = document.createElement('div');
+      hint.innerHTML = '👆 Try swiping this task left or right!';
+      hint.style.position = 'fixed';
+      hint.style.bottom = '20px';
+      hint.style.left = '50%';
+      hint.style.transform = 'translateX(-50%)';
+      hint.style.backgroundColor = '#3498db';
+      hint.style.color = 'white';
+      hint.style.padding = '10px 15px';
+      hint.style.borderRadius = '20px';
+      hint.style.fontSize = '12px';
+      hint.style.fontWeight = 'bold';
+      hint.style.zIndex = '1000';
+      hint.style.boxShadow = '0 4px 12px rgba(0,0,0,0.3)';
+      hint.style.animation = 'pulse 2s infinite';
+      
+      document.body.appendChild(hint);
+      
+      // Remove hint after 5 seconds or on first swipe
+      const removeHint = () => {
+        if (document.body.contains(hint)) {
+          hint.style.opacity = '0';
+          setTimeout(() => {
+            if (document.body.contains(hint)) {
+              document.body.removeChild(hint);
+            }
+          }, 300);
+        }
+      };
+      
+      setTimeout(removeHint, 5000);
+      
+      // Listen for first swipe
+      const handleFirstSwipe = () => {
+        removeHint();
+        document.removeEventListener('touchstart', handleFirstSwipe);
+      };
+      
+      document.addEventListener('touchstart', handleFirstSwipe);
+    }
+  }, 2000);
+}
