@@ -137,7 +137,7 @@ function handleSwipeEnd(e, item, taskObj) {
   }
   
   // Reset item position and style
-  item.style.transition = 'all 0.3s ease';
+  item.style.transition = 'all 0.6s ease';
   item.style.transform = 'translateX(0px)';
   item.style.backgroundColor = 'var(--item)';
   
@@ -148,7 +148,7 @@ function handleSwipeEnd(e, item, taskObj) {
 
 function handleEdit(taskObj, item) {
   const span = item.querySelector('span');
-  const newText = prompt("Edit your task:", span.textContent);
+  const newText = prompt("Edit this task :", span.textContent);
   if (newText !== null && newText.trim() !== "") {
     span.textContent = newText.trim();
     taskObj.text = newText.trim();
@@ -217,6 +217,9 @@ function addTaskToDOM(taskObj) {
   item.style.transition = 'all 0.3s ease';
   item.style.position = 'relative';
   item.style.overflow = 'hidden';
+  item.style.minWidth = '26rem';
+  item.style.maxWidth = '900px';
+
 
   // Add swipe hint for mobile
   if (isMobileDevice()) {

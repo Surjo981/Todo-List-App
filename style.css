@@ -7,8 +7,8 @@
 }
 
 :root {
-  --base-bg: #19191b;
-  --object-bg: #0f0f1a;
+  --base-bg: #0d0d0d;
+  --object-bg: linear-gradient(#1e1e1e, #121212, #181818);
   --text-color: #ffffff;
   --secondary-text: #a4a5b8;
   --primary-color: #a8bdfd;
@@ -22,8 +22,8 @@
 }
 
 .darkmode {
-  --base-bg: #f0f0f0;
-  --object-bg: #f3e8ffe7;
+  --base-bg: #f7f4f4;
+  --object-bg: #ffffff;
   --text-color: #183153;
   --secondary-text: #232738;
   --primary-color: #3a435d;
@@ -32,7 +32,7 @@
   --abbr-color: #7d50bd;
   --sub-topic-color: #9368cf;
   --green: #1bbb5e;
-  --item: rgba(99, 99, 99, 0.089);
+  --item: rgba(0, 0, 0, 0.014);
   transition: ease-in-out 0.2s;
 }
 
@@ -198,7 +198,7 @@ body {
   font-size: 17px;
   border: none;
   height: auto;
-  border-radius: 30px;
+  border-radius: 3rem;
   margin-left: 10px;
   margin-bottom: 7px;
   font-family: "Baloo Da 2", sans-serif;
@@ -271,10 +271,11 @@ input {
   font-size: 20px;
   font-family: "Baloo Da 2", sans-serif;
   border-radius: 3rem;
-  padding-left: 5px;
   border: none;
-  width: 59%;
+  width: 60%;
   padding: 5px 0px 5px 7px;
+  background: var(--item);
+  color: var(--text-color);
 }
 
 #back a {
@@ -392,7 +393,12 @@ span.completed {
   font-size: 15px;
   padding: 10px 10px;
   font-weight: 500;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
 }
+
 #list-name {
   text-align: center;
   margin-bottom: 1rem;
@@ -453,7 +459,7 @@ header {
 }
 nav {
   width: 90%;
-  max-width: 1000px;
+  max-width: 45rem;
   background: rgba(255, 255, 255, 0.03);
   backdrop-filter: blur(15px);
   position: fixed;
@@ -478,6 +484,16 @@ nav img {
 }
 .nav-box i {
   font-size: 25px;
+}
+
+.nav-box svg {
+  width: 32px;
+}
+
+.nav-box {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 }
 #heading {
   margin-bottom: 20px;
@@ -534,7 +550,7 @@ nav img {
     margin-top: 15px;
   }
   nav h2 {
-    font-size: 18px;
+    font-size: 17px;
   }
 
   nav img {

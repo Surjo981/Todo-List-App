@@ -18,8 +18,9 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.13.1/font/bootstrap-icons.min.css"
   integrity="sha512-t7Few9xlddEmgd3oKZQahkNI4dS6l80+eGEzFQiqtyVYdvcSG2D3Iub77R20BdotfRPA9caaRkg1tyaJiPmO0g=="
   crossorigin="anonymous" referrerpolicy="no-referrer" />
-
+<script async src="https://basicons.xyz/embed.js"> </script>
 </head>
+
 
 <body>
 
@@ -51,12 +52,12 @@
 
 <h2 id="heading">Create a To-do list</h2>
 
-  <form id="list-form">
+  <div id="list-form">
     <input type="text" id="list-title" placeholder="Enter a list name" />
     <button id="create-list-btn" type="submit">
       <i class="fa-solid fa-plus"></i> Create List
     </button>
-  </form>
+  </div>
   <div id="btn-container">
     <button id="import-btn" onclick="importCompleteTodoLists()">
       <img class="icon" src="https://cdn-surjo.pages.dev/import.svg" alt=""> Import
