@@ -461,3 +461,29 @@ if (document.readyState === 'loading') {
 
 
 
+//navbar
+
+window.addEventListener("scroll", () => {
+  const navbar = document.getElementById("nav");
+  
+  // Transition add (only once)
+  navbar.style.transition = "all 0.2s ease";
+  
+  if (window.scrollY > 0) {
+    navbar.style.background = "rgba(255, 255, 255, 0.03)";
+    navbar.style.boxShadow = "0 2px 10px rgba(0, 0, 0, 0.5)";
+    navbar.style.width = '90%';
+    navbar.style.maxWidth = '45rem';
+    navbar.style.backdropFilter = 'blur(15px)';
+    navbar.style.borderRadius = '5rem';
+    navbar.style.top = '10px';
+  } else {
+    navbar.style.background = "transparent";
+    navbar.style.boxShadow = "0 2px 10px rgba(0, 0, 0, 0.0)";
+    navbar.style.width = '';
+    navbar.style.maxWidth = '';
+    navbar.style.backdropFilter = '';
+    navbar.style.borderRadius = ''; 
+    navbar.style.top = '';
+  }
+});

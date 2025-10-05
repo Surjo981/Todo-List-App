@@ -24,16 +24,15 @@
 
 <body>
 
-  <header>
-    <nav>
+  <header id="header">
+    <nav id="nav">
       <div class="logo-box">
         <a href="index.html">
           <img src="favicon.png" alt="">
         </a>
         <a href="index.html">
-          <h2>Ultra To-Do List</h2>
+          <h2>To-Do App</h2>
         </a>
-
       </div>
       <div class="nav-box">
         <a class="theme-switch">
@@ -52,12 +51,12 @@
 
 <h2 id="heading">Create a To-do list</h2>
 
-  <div id="list-form">
+  <form id="list-form">
     <input type="text" id="list-title" placeholder="Enter a list name" />
     <button id="create-list-btn" type="submit">
       <i class="fa-solid fa-plus"></i> Create List
     </button>
-  </div>
+  </form>
   <div id="btn-container">
     <button id="import-btn" onclick="importCompleteTodoLists()">
       <img class="icon" src="https://cdn-surjo.pages.dev/import.svg" alt=""> Import
@@ -77,7 +76,7 @@
       <script>document.write(new Date().getFullYear())</script> Designed and Developed by
     </abbr>
     <a target="_blank" href="https://surjo.pages.dev/">Surjo Karmokar.</a>
-  </p>
+  </p> 
 
   <!-- main script -->
   <script src="home.js"></script>

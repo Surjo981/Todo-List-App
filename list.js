@@ -217,7 +217,6 @@ function addTaskToDOM(taskObj) {
   item.style.transition = 'all 0.3s ease';
   item.style.position = 'relative';
   item.style.overflow = 'hidden';
-  item.style.minWidth = '26rem';
   item.style.maxWidth = '900px';
 
 
