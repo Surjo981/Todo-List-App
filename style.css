@@ -529,10 +529,12 @@ nav img {
   }
 
   button {
-    font-size: 18px;
-    padding: 5px 10px;
+    font-size: 17px;
+    padding: 5px;
   }
-
+  .icon {
+    height: 22px;
+  }
   input {
     font-size: 18px;
     margin-bottom: 10px;
