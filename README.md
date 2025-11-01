@@ -25,8 +25,6 @@ A **powerful** and **user-friendly** todo list application.
 </p>
 
 
----
-
 ## 👨‍💻 Created by [Surjo Karmokar](https://github.com/Surjo981)
 
 <p align="center">⭐ consider giving this repo a star, If you find this helpful!</p>
