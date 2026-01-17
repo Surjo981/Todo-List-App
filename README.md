@@ -1,4 +1,4 @@
-<h1 align="center">🌐Todo List App</h1>
+<h1 align="center">🌐 Todo List App</h1>
 
 <p align="center">
   <b>A powerful, responsive, and user-friendly task management app built with HTML, CSS, and JavaScript.</b>
