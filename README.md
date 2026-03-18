@@ -6,7 +6,7 @@
 
 ---
 
-### ✨ Features
+## ✨ Features
 - 🗂️ Add multiple todo lists  
 - ✏️ Add, edit, and delete tasks  
 - ✅ Mark tasks as complete  
@@ -14,9 +14,12 @@
 - 📱 Edit and delete tasks using swipe gestures (mobile & tablet)  
 - 💻 Fully responsive design across all devices  
 
----
+## 🧩 Built With
+- **HTML5** – Structure  
+- **CSS3** – Styling & Layout  
+- **JavaScript (ES6)** – Logic & Interactivity  
 
-### 📸 Screenshots
+## 📸 Screenshots
 <p align="center">
   <img src="https://surjo.pages.dev/image/S1.png" width="80%" alt="Todo List App Screenshot 1">
   <br><br>
@@ -25,14 +28,20 @@
   <img src="https://surjo.pages.dev/image/S3.png" width="80%" alt="Todo List App Screenshot 3">
 </p>
 
----
 
-### 🧩 Built With
-- **HTML5** – Structure  
-- **CSS3** – Styling & Layout  
-- **JavaScript (ES6)** – Logic & Interactivity  
+## 🚀 How To Run
 
----
+**You can run this project in two ways:**
+
+### 1. Run Locally
+
+📥 Clone the repository and open the `index.html` file in your browser.
+
+`or`
+
+### 2. View Online
+
+🔗 Visit **[ultracounter.pages.dev](https://ultratodolist.pages.dev/**
 
 ## 👨‍💻 Created by [Surjo Karmokar](https://github.com/Surjo981)
 
