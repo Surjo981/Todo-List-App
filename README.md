@@ -41,7 +41,7 @@
 
 ### 2. View Online
 
-🔗 Visit **[ultracounter.pages.dev](https://ultratodolist.pages.dev/**
+🔗 Visit **[ultracounter.pages.dev](https://ultratodolist.pages.dev/)**
 
 ## 👨‍💻 Created by [Surjo Karmokar](https://github.com/Surjo981)
 
